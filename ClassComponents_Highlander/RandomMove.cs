@@ -38,7 +38,7 @@ namespace ClassComponents_Highlander
             Console.WriteLine(message);
             Logger.Log(message);
 
-            while (self.Position[0] + newDir[0] > app.GridColumnDimension - 1 || self.Position[0] + newDir[0] < 0 || self.Position[1] + newDir[1] > app.GridColumnDimension - 1 || self.Position[1] + newDir[1] < 0)
+            while (self.Position[0] + newDir[0] > app.GridRowDimension - 1 || self.Position[0] + newDir[0] < 0 || self.Position[1] + newDir[1] > app.GridColumnDimension - 1 || self.Position[1] + newDir[1] < 0)
             {
                 newDir = step[rand.Next(1, 9)]; //If the randomly genrated moving direction causes the highlander to move outside the boundary, regenerate a direction
             }
