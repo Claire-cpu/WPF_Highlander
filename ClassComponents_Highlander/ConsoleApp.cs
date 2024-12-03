@@ -148,6 +148,20 @@ namespace ClassComponents_Highlander
 
         }
 
+        public int[] GetRandomPosition()
+        {
+            Random rand = new Random();
+            while (true)
+            {
+                int row = rand.Next(0, _gridRowDimension);
+                int column = rand.Next(0, _gridColumnDimension);
 
+                if (_grid[row, column] == 0) //0 means unoccupied cell
+                {
+                    _grid[row, column] = 1; //mark cell as occupied
+                    return new int[] { row, column };
+                }
+            }
+        }
     }
 }
