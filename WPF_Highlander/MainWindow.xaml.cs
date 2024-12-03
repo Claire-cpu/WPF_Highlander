@@ -52,17 +52,52 @@ namespace WPF_Highlander
             gameService.StartGame(option1, option2);
         }
 
+        private void UpdateGameGrid()
+        {
+            gameGrid.Children.Clear();
+            for (int row = 0; row < gameService.HighlanderApp.GridRowDimension; row++)
+            {
+                for (int col = 0; col < gameService.HighlanderApp.GridColumnDimension; col++)
+                {
+                    Button cell = new Button();
+                    var occupant = gameService.HighlanderApp.HighlanderList.FirstOrDefault(h => h.Row == row && h.Column == col);
+
+                    if (occupant != null)
+                    {
+                        cell.Background = occupant.IsGood ? Brushes.LightGreen : Brushes.Red;
+                    }
+                    else
+                    {
+                        cell.Background = Brushes.White;
+                    }
+
+                    gameGrid.Children.Add(cell);
+                }
+            }
+        }
         //Add Highlander button
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
+            if (gameService == null)
+            {
+                InitializeGameService();
+            }
+
             AddHighlander();
+            UpdateGameGrid();
             MessageBox.Show("Highlander added!");
         }
 
         //Start Game button
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (gameService == null)
+            {
+                InitializeGameService();
+            }
+
             StartGame();
+            UpdateGameGrid();
         }
     }
 }
