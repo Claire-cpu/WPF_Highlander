@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClassComponents_Highlander\ClassComponents_Highlander.csproj">
+      <Project>{81411657-01B7-446A-A763-9275A3EEC78B}</Project>
+      <Name>ClassComponents_Highlander</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
