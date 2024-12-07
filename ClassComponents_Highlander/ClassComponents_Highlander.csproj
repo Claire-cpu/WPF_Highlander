@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="BadHighlander.cs" />
     <Compile Include="BehaviorStrategy.cs" />
-    <Compile Include="HighlanderGameService.cs" />
     <Compile Include="ConsoleApp.cs" />
     <Compile Include="Escape.cs" />
     <Compile Include="Fight.cs" />
