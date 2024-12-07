@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassComponents_Highlander
+namespace ConsoleApp_HighLander
 {
-    public class BadHighlander : Highlander
+    internal class BadHighlander : Highlander
     {
         private bool _isGood;
 
