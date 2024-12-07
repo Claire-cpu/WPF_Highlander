@@ -116,11 +116,7 @@ namespace ConsoleApp_HighLander
                         {
                             highlander.ExecuteBehavior(this, oppo);
                         }
-
-
                     }
-
-
                 }
                 else if (!highlander.IsGood && opponentsInCell.Count > 0)
                 {
@@ -138,8 +134,6 @@ namespace ConsoleApp_HighLander
                         highlander.Behavior = new RandomMove();
                         highlander.ExecuteBehavior(this, highlander);
                     }
-
-
                 }
                 else
                 {
@@ -150,13 +144,11 @@ namespace ConsoleApp_HighLander
             }
             // Remove dead Highlanders after the round
             _highlanderList.RemoveAll(h => !h.IsAlive);
-
-
         }
 
         public int[] GetRandomPosition()
         {
-            if(_grid.Cast<int>().All(cell => cell != 0))
+            if (_grid.Cast<int>().All(cell => cell != 0))
             {
                 throw new InvalidOperationException("No more available spaces on the grid.");
             }
@@ -166,6 +158,7 @@ namespace ConsoleApp_HighLander
             {
                 int row = rand.Next(0, _gridRowDimension);
                 int column = rand.Next(0, _gridColumnDimension);
-
+            }
+        }
     }
 }
