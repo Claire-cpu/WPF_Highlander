@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -153,6 +154,18 @@ namespace ConsoleApp_HighLander
 
         }
 
+        public int[] GetRandomPosition()
+        {
+            if(_grid.Cast<int>().All(cell => cell != 0))
+            {
+                throw new InvalidOperationException("No more available spaces on the grid.");
+            }
+
+            Random rand = new Random();
+            while (true)
+            {
+                int row = rand.Next(0, _gridRowDimension);
+                int column = rand.Next(0, _gridColumnDimension);
 
     }
 }

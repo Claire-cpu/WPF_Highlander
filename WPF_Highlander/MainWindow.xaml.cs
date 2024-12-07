@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data.SqlClient;
 
 namespace WPF_Highlander
 {
@@ -22,6 +23,8 @@ namespace WPF_Highlander
     public partial class MainWindow : Window
     {
         private HighlanderGameService gameService;
+        private SqlConnection conn = new SqlConnection();
+        private SqlCommand cmd;
         public MainWindow()
         {
             InitializeComponent();
