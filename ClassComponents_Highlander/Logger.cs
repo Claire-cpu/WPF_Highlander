@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace ClassComponents_Highlander
+namespace ConsoleApp_HighLander
 {
-    public class Logger
+    internal class Logger
     {
         private static string logFile = "log.txt";
 
