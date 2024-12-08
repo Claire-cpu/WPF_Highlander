@@ -47,7 +47,8 @@
     <Compile Include="Escape.cs" />
     <Compile Include="Fight.cs" />
     <Compile Include="GoodHighlander.cs" />
-    <Compile Include="Highlander.cs" />
+    <Compile Include="Highlander.cs" /> 
+    <Compile Include="HighlanderGameService.cs" /> 
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomMove.cs" />
