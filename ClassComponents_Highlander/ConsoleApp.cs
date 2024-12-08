@@ -96,6 +96,7 @@ namespace ConsoleApp_HighLander
                     .Where(h => h.IsAlive && h != highlander && h.Row == highlander.Row && h.Column == highlander.Column)
                     .ToList();
                 var badHighlanders = opponentsInCell.Where(h => !h.IsGood).ToList();
+
                 if (highlander.IsGood && badHighlanders.Count > 0)
                 {
                     /*Each bad highlander in the opponents list will try to fight with 
@@ -144,21 +145,6 @@ namespace ConsoleApp_HighLander
             }
             // Remove dead Highlanders after the round
             _highlanderList.RemoveAll(h => !h.IsAlive);
-        }
-
-        public int[] GetRandomPosition()
-        {
-            if (_grid.Cast<int>().All(cell => cell != 0))
-            {
-                throw new InvalidOperationException("No more available spaces on the grid.");
-            }
-
-            Random rand = new Random();
-            while (true)
-            {
-                int row = rand.Next(0, _gridRowDimension);
-                int column = rand.Next(0, _gridColumnDimension);
-            }
         }
     }
 }

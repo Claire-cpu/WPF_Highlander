@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ClassComponents_Highlander
 {
@@ -18,7 +19,13 @@ namespace ClassComponents_Highlander
 
         public void AddHighlander(string name, int age, int powerLevel, bool isGoodHighlander)
         {
-            int[] randomPosition = HighlanderApp.GetRandomPosition();
+            if (HighlanderApp.HighlanderList.Count >= HighlanderApp.GridColumnDimension * HighlanderApp.GridRowDimension)
+            {
+                MessageBox.Show("Grid is full. No more highlanders can be added.", "Grid Full", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int[] randomPosition = GetRandomPosition();
             Highlander highlander;
 
             if (isGoodHighlander)
@@ -36,6 +43,25 @@ namespace ClassComponents_Highlander
         public void StartGame(bool option1, bool option2)
         {
             HighlanderApp.PlayGame(option1, option2);
+        }
+
+        public int[] GetRandomPosition()
+        {
+            Random rand = new Random();
+            var existingPositions = HighlanderApp.HighlanderList
+                .Select(h => (h.Row, h.Column))
+                .ToHashSet();
+
+            while (true)
+            {
+                int row = rand.Next(0, HighlanderApp.GridRowDimension);
+                int column = rand.Next(0, HighlanderApp.GridColumnDimension);
+
+                if (!existingPositions.Contains((row, column)))
+                {
+                    return new[] { row, column };
+                }
+            }
         }
     }
 }

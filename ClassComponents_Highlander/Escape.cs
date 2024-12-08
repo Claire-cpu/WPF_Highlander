@@ -14,20 +14,14 @@ namespace ConsoleApp_HighLander
 
             // here Checking the type of the opponent
 
-            int[] selfPos = self.Position;
-            //int[] opponentPos = opponent.Position;
             self.Behavior = new RandomMove();
-
-            //int[] newPos = CalculateEscapePosition(selfPos, opponentPos, app.GridRowDimension - 1, app.GridColumnDimension - 1);
             self.Behavior.Execute(app, self);
-            //self.UpdatePosition(newPos);
 
-            message = $"{self.Name} escaped from {opponent.Name} to position ({self.Position[0]}, {self.Position[1]}).";
+            message = opponent != null
+               ? $"{self.Name} escaped from {opponent.Name} to position ({self.Position[0]}, {self.Position[1]})."
+               : $"{self.Name} moved to a new position ({self.Position[0]}, {self.Position[1]}) to avoid confrontation.";
             Console.WriteLine(message);
             Logger.Log(message);
-
-
         }
-
     }
 }
