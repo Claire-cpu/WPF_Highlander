@@ -149,5 +149,6 @@ namespace WPF_Highlander
             StartGame();
             UpdateGameGrid();
         }
+
     }
 }

@@ -16,13 +16,15 @@
                 <Label Content="Columns" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-284" Canvas.Top="7"/>
             </Canvas>
         </GroupBox>
-        <GroupBox HorizontalAlignment="Left" Height="208" Header="Highlander Info" Margin="24,134,0,0" VerticalAlignment="Top" Width="312"/>
+        <GroupBox HorizontalAlignment="Left" Height="208" Header="Highlander Info" Margin="24,134,0,0" VerticalAlignment="Top" Width="312">
+
+        </GroupBox>
         <GroupBox HorizontalAlignment="Left" Height="100" Header="Game Option" Margin="24,347,0,0" VerticalAlignment="Top" Width="312"/>
         <Label Content="Select Type" HorizontalAlignment="Left" Margin="39,155,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <Label Content="Highlander Name " HorizontalAlignment="Left" Margin="39,209,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <Label Content="Highlander Age" HorizontalAlignment="Left" Margin="39,228,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <Label Content="Highlander Number" HorizontalAlignment="Left" Margin="39,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
-        <TextBox x:Name="numOfHighlandersTextBox" HorizontalAlignment="Left" Height="29" Margin="146,305,0,0" TextWrapping="Wrap" Text="num of highlansers left to add" VerticalAlignment="Top" Width="172"/>
+        <TextBox x:Name="numOfHighlandersTextBox" HorizontalAlignment="Left" Height="19" Margin="126,308,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="49" TextChanged="numOfHighlandersTextBox_TextChanged"/>
         <TextBox x:Name="highlanderNumberTextBox" HorizontalAlignment="Left" Height="17" Margin="188,190,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72"/>
         <RadioButton x:Name="goodRadioButton" Content="Good" HorizontalAlignment="Left" Height="16" Margin="130,162,0,0" VerticalAlignment="Top" Width="52" GroupName="highlanderInfoRadioButtons"/>
         <RadioButton x:Name="badRadioButton" Content="Bad" HorizontalAlignment="Left" Height="16" Margin="187,162,0,0" VerticalAlignment="Top" Width="52" GroupName="highlanderInfoRadioButtons"/>
@@ -43,6 +45,7 @@
                 <UniformGrid x:Name="gameGrid" Rows="{Binding GridRowDimension}" Columns="{Binding GridColumnDimension}" />
             </ScrollViewer>
         </GroupBox>
+        <Label Content="More Highlanders to Add" HorizontalAlignment="Left" Margin="180,305,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
 
     </Grid>
 </Window>
