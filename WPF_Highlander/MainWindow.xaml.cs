@@ -129,7 +129,7 @@ namespace WPF_Highlander
 
             AddHighlander();
             UpdateGameGrid();
-            highlanderNumberTextBox.Text = (maxHighlanders - currentHighlanders).ToString();
+            numOfHighlandersTextBox.Text = (maxHighlanders - currentHighlanders).ToString();
             MessageBox.Show("Highlander added!");
         }
 
