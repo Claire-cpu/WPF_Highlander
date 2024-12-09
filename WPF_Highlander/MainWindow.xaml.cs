@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Security.Cryptography.X509Certificates;
+using System.Data;
 
 namespace WPF_Highlander
 {
@@ -26,7 +27,9 @@ namespace WPF_Highlander
         private HighlanderGameService gameService;
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
-        private string conString = "Server=(local);Database=Highlander2024;User=Cort2024;Password=12345";
+        private string conString = "Server=(local);" +
+                "Database=Week10Fall2024;" +
+                "User=CaraFall2024;Password=12345";
         public MainWindow()
         {
             InitializeComponent();
@@ -61,13 +64,15 @@ namespace WPF_Highlander
 
             try
             {
-                string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood) VALUES (@Name, @Age, @PowerLevel, @IsGood)";
-                cmd.CommandText = query;
+                string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
+                
 
-                cmd.Parameters.AddWithValue("@Name", name);
-                cmd.Parameters.AddWithValue("@Age", age);
-                cmd.Parameters.AddWithValue("@PowerLevel", powerLevel);
-                cmd.Parameters.AddWithValue("@IsGood", isGood);
+                cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name });
+                cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = age });
+                cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = powerLevel });
+                cmd.Parameters.Add(new SqlParameter("@IsGood", SqlDbType.Bit) { Value = isGood });
+                cmd.Parameters.Add(new SqlParameter("@IsAlive", SqlDbType.Bit) { Value = 1 });
+                cmd.CommandText = query;
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
