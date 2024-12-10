@@ -54,20 +54,17 @@ namespace ConsoleApp_HighLander
         }
 
 
-        public void PlayGame(bool option1, bool option2)
+        public void PlayGame(bool option1, bool option2, Action onRoundComplete)
         {
-            Fight fight = new Fight();
-
-
             if (option1)
             {
                 while (_highlanderList.Count(h => h.IsAlive) > 1)
                 {
-                    ExecuteRound();
+                    ExecuteRound(onRoundComplete);
                 }
                 Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+             
             }
-
 
             if (option2)
             {
@@ -77,26 +74,27 @@ namespace ConsoleApp_HighLander
                 for (int round = 1; round <= rounds; round++)
                 {
                     Console.WriteLine($"Round {round} begins.");
-                    ExecuteRound();
+                    ExecuteRound(onRoundComplete);
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
 
                 Console.WriteLine("Simulation complete.");
             }
-
-            //FUNCTION TO CLEAR DATABASE
         }
 
-
-        private void ExecuteRound()
+        private void ExecuteRound(Action onRoundComplete = null)
         {
             var liveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList(); // Snapshot of live highlanders
+
             foreach (Highlander highlander in liveHighlanders)
             {
-                // Checking for collisions
+                if (!highlander.IsAlive) continue;
+
+                //Find opponents in the same cell
                 var opponentsInCell = _highlanderList
                     .Where(h => h.IsAlive && h != highlander && h.Row == highlander.Row && h.Column == highlander.Column)
                     .ToList();
+
                 var badHighlanders = opponentsInCell.Where(h => !h.IsGood).ToList();
 
                 if (highlander.IsGood && badHighlanders.Count > 0)
@@ -105,37 +103,47 @@ namespace ConsoleApp_HighLander
                      * good highlander in the first place*/
                     foreach (Highlander oppo in badHighlanders)
                     {
+                        if (!highlander.IsAlive || !oppo.IsAlive) break;
+
                         oppo.Behavior = new Fight();
                         oppo.ExecuteBehavior(this, highlander);
-                        if (highlander.IsAlive)
-                        {
-                            continue;
-                        }
+
+                        onRoundComplete?.Invoke();
+
+
+                        if (!oppo.IsAlive) _highlanderList.Remove(oppo);
+                        if (!highlander.IsAlive) break;
                     }
+
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new Escape();
                         foreach (Highlander oppo in badHighlanders)
                         {
                             highlander.ExecuteBehavior(this, oppo);
+                            onRoundComplete?.Invoke();
                         }
                     }
                 }
+
                 else if (!highlander.IsGood && opponentsInCell.Count > 0)
                 {
                     foreach (Highlander oppo in opponentsInCell)
                     {
+                        if (!highlander.IsAlive || !oppo.IsAlive) break;
+
                         highlander.Behavior = new Fight();
                         highlander.ExecuteBehavior(this, oppo);
-                        if (highlander.IsAlive)
-                        {
-                            continue;
-                        }
+
+                        if (!oppo.IsAlive) _highlanderList.Remove(oppo);
+                        if (!highlander.IsAlive) break;
                     }
+
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new RandomMove();
                         highlander.ExecuteBehavior(this, highlander);
+                        onRoundComplete?.Invoke();
                     }
                 }
                 else
@@ -143,10 +151,12 @@ namespace ConsoleApp_HighLander
                     //when the highlander is good and all highlanders in the opponent list in cell is good
                     highlander.Behavior = new RandomMove();
                     highlander.ExecuteBehavior(this, highlander);
+                    onRoundComplete?.Invoke();
                 }
             }
-            // Remove dead Highlanders after the round
+            // Remove dead Highlanders after the round and update UI
             _highlanderList.RemoveAll(h => !h.IsAlive);
+            onRoundComplete?.Invoke();
         }
     }
 }

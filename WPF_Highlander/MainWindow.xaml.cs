@@ -28,8 +28,8 @@ namespace WPF_Highlander
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
         private string conString = "Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345";
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345";
         public MainWindow()
         {
             InitializeComponent();
@@ -95,6 +95,7 @@ namespace WPF_Highlander
             bool option1 = (bool)option1RadioButton.IsChecked;
             bool option2 = (bool)option2RadioButton.IsChecked;
 
+            gameService.OnRoundComplete = UpdateGameGrid;
             gameService.StartGame(option1, option2);
         }
 
@@ -121,6 +122,45 @@ namespace WPF_Highlander
                 }
             }
         }
+
+        public void ClearDatabase()
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conString))
+                {
+                    conn.Open();
+                    //Clear GameRounds table
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM GameRounds", conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    //Clear Highlanders Table
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM Highlanders", conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    //Reset identity columns back to 0
+                    using (SqlCommand cmd = new SqlCommand("DBCC CHECKIDENT ('Highlanders', RESEED, 0)", conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("DBCC CHECKIDENT ('GameRounds', RESEED, 0)", conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                MessageBox.Show("Database cleared.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing database: {ex}");
+            }
+        }
+
         //Add Highlander button
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
@@ -134,7 +174,7 @@ namespace WPF_Highlander
 
             AddHighlander();
             UpdateGameGrid();
-            numOfHighlandersTextBox.Text = (maxHighlanders - currentHighlanders).ToString();
+            numOfHighlandersTextBox.Text = (maxHighlanders - currentHighlanders - 1).ToString();
             MessageBox.Show("Highlander added!");
         }
 
@@ -148,8 +188,7 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
-
+            ClearDatabase();
         }
-
     }
 }
