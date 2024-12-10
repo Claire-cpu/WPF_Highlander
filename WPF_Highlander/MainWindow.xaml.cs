@@ -27,7 +27,7 @@ namespace WPF_Highlander
         private HighlanderGameService gameService;
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
-        private string conString = "Server=(local);" +
+        private string conString = "Server=192.168.164.1,1433;" +
                 "Database=Week10Fall2024;" +
                 "User=CaraFall2024;Password=12345";
         public MainWindow()
@@ -148,6 +148,7 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
+            gameGrid.Children.Clear();
         }
 
     }

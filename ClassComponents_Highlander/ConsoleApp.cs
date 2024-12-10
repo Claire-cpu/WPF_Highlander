@@ -83,6 +83,8 @@ namespace ConsoleApp_HighLander
 
                 Console.WriteLine("Simulation complete.");
             }
+
+            //FUNCTION TO CLEAR DATABASE
         }
 
 
