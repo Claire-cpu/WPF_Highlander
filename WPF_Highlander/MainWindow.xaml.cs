@@ -65,8 +65,8 @@ namespace WPF_Highlander
             try
             {
                 string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
-                
 
+                //cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.NVarChar) { Value = gameService.HighlanderApp });
                 cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name });
                 cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = age });
                 cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = powerLevel });
@@ -148,6 +148,7 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
+
         }
 
     }
