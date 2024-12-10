@@ -27,7 +27,7 @@ namespace WPF_Highlander
         private HighlanderGameService gameService;
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
-        private string conString = "Server=192.168.164.1,1433;" +
+        private string conString = "Server=(local);" +
                 "Database=Week10Fall2024;" +
                 "User=CaraFall2024;Password=12345";
         public MainWindow()
@@ -65,8 +65,8 @@ namespace WPF_Highlander
             try
             {
                 string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
-                
 
+                //cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.NVarChar) { Value = gameService.HighlanderApp });
                 cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name });
                 cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = age });
                 cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = powerLevel });
@@ -148,7 +148,7 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
-            gameGrid.Children.Clear();
+
         }
 
     }
