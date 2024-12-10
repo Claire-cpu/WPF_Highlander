@@ -11,7 +11,6 @@ namespace ClassComponents_Highlander
     public class HighlanderGameService
     {
         public ConsoleApp HighlanderApp { get; private set; }
-        public Action OnRoundComplete { get; set; }
 
         public HighlanderGameService(int rows, int columns)
         {
@@ -43,7 +42,7 @@ namespace ClassComponents_Highlander
 
         public void StartGame(bool option1, bool option2)
         {
-            HighlanderApp.PlayGame(option1, option2, OnRoundComplete);
+            HighlanderApp.PlayGame(option1, option2);
         }
 
         public int[] GetRandomPosition()
