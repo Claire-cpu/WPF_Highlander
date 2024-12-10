@@ -60,11 +60,25 @@ namespace ConsoleApp_HighLander
         {
             if (option1)
             {
-                while (_highlanderList.Count(h => h.IsAlive) > 1)
+                if(!_highlanderList.Any(h=> !h.IsGood)) //if all highlanders initially input by user are good highlanders, no winner for the game
                 {
-                    ExecuteRound();
+                    Console.WriteLine("The game has no winner, as all highlanders are good highlanders.");
                 }
-                Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                else
+                {
+                    while (_highlanderList.Count(h => h.IsAlive) > 1)
+                    {
+                        ExecuteRound();
+                        
+                        //When more than 1 highlander is alive and none of them is bad, break the loop
+                        if(!_highlanderList.Any(h => h.IsAlive && !h.IsGood))
+                        {
+                            break;
+                        }
+                    }
+                    //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                }
+               
             }
 
             if (option2)
