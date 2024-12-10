@@ -13,7 +13,7 @@ namespace ConsoleApp_HighLander
         public BadHighlander(string name, int age, int powerLevel, int[] position)
         : base(name, age, powerLevel, position)
         {
-            _isGood = true; // Set default value of the characteristic for BadHighlander
+            _isGood = false; // Set default value of the characteristic for BadHighlander
         }
         public override bool IsGood { get { return false; } set { _isGood = value; } }
 
