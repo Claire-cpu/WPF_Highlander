@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF_Highlander"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="800">
+        Title="MainWindow" Height="500" Width="1300">
     <Grid>
 
         <GroupBox HorizontalAlignment="Left" Height="105" Header="Grid Dimension" Margin="24,10,0,0" VerticalAlignment="Top" Width="212">
@@ -36,7 +36,7 @@
         <Label Content="How game ends" HorizontalAlignment="Left" Height="34" Margin="29,365,0,0" VerticalAlignment="Top" Width="95"/>
         <RadioButton x:Name="option1RadioButton" Content="1 winner left" HorizontalAlignment="Left" Height="16" Margin="156,372,0,0" VerticalAlignment="Top" Width="102" GroupName="gameOptions"/>
         <RadioButton x:Name="option2RadioButton" Content="num of rounds" HorizontalAlignment="Left" Height="16" Margin="156,394,0,0" VerticalAlignment="Top" Width="102" GroupName="gameOptions"/>
-        <TextBox x:Name="numRoundsTextBox" HorizontalAlignment="Left" Height="17" Margin="267,393,0,0" TextWrapping="Wrap" Text="#" VerticalAlignment="Top" Width="51" TextAlignment="Center"/>
+        <TextBox x:Name="numRoundsTextBox" HorizontalAlignment="Left" Height="17" Margin="267,393,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" TextAlignment="Center"/>
         <Button x:Name="addButton" Content="Add" HorizontalAlignment="Left" Height="19" Margin="188,281,0,0" VerticalAlignment="Top" Width="72" Click="addButton_Click"/>
         <Button x:Name="startGameButton" Content="Start Game" HorizontalAlignment="Left" Height="19" Margin="34,417,0,0" VerticalAlignment="Top" Width="72" Click="Button_Click"/>
 
@@ -46,6 +46,8 @@
             </ScrollViewer>
         </GroupBox>
         <Label Content="More Highlanders to Add" HorizontalAlignment="Left" Margin="180,305,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
+        <GroupBox HorizontalAlignment="Left" Height="437" Header="Game Result" Margin="822,10,0,0" VerticalAlignment="Top" Width="454"/>
+        <TextBlock x:Name="gameResult" HorizontalAlignment="Left" Height="385" Margin="838,41,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="426"/>
 
     </Grid>
 </Window>
