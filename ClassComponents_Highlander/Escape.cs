@@ -12,8 +12,6 @@ namespace ConsoleApp_HighLander
         {
             string message;
 
-            // here Checking the type of the opponent
-
             self.Behavior = new RandomMove();
             self.Behavior.Execute(app, self);
 

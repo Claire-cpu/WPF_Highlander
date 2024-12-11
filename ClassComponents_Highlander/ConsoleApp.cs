@@ -60,7 +60,7 @@ namespace ConsoleApp_HighLander
         {
             if (option1)
             {
-                if(!_highlanderList.Any(h=> !h.IsGood)) //if all highlanders initially input by user are good highlanders, no winner for the game
+                if (!_highlanderList.Any(h => !h.IsGood)) //if all highlanders initially input by user are good highlanders, no winner for the game
                 {
                     Console.WriteLine("The game has no winner, as all highlanders are good highlanders.");
                 }
@@ -69,16 +69,16 @@ namespace ConsoleApp_HighLander
                     while (_highlanderList.Count(h => h.IsAlive) > 1)
                     {
                         ExecuteRound();
-                        
+
                         //When more than 1 highlander is alive and none of them is bad, break the loop
-                        if(!_highlanderList.Any(h => h.IsAlive && !h.IsGood))
+                        if (!_highlanderList.Any(h => h.IsAlive && !h.IsGood))
                         {
                             break;
                         }
                     }
                     //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
                 }
-               
+
             }
 
             if (option2)
@@ -116,7 +116,7 @@ namespace ConsoleApp_HighLander
                         oppo.Behavior = new Fight();
                         oppo.ExecuteBehavior(this, highlander);
                         _currentRound++;
-                        LogInteraction(_currentRound,highlander, oppo);
+                        LogInteraction(_currentRound, highlander, oppo);
                         if (!highlander.IsAlive) break;
                     }
                     if (highlander.IsAlive)
@@ -129,14 +129,14 @@ namespace ConsoleApp_HighLander
                         }*/
                     }
                 }
-                else if (!highlander.IsGood && opponentsInCell.Count > 0)
+                else if (!highlander.IsGood && highlander.IsAlive && opponentsInCell.Count > 0)
                 {
                     foreach (Highlander oppo in opponentsInCell)
                     {
                         highlander.Behavior = new Fight();
                         highlander.ExecuteBehavior(this, oppo);
                         _currentRound++;
-                        LogInteraction(_currentRound,highlander, oppo);
+                        LogInteraction(_currentRound, highlander, oppo);
                         if (!highlander.IsAlive) break;
                     }
                     if (highlander.IsAlive)
