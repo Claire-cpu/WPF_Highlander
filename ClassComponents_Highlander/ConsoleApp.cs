@@ -129,7 +129,7 @@ namespace ConsoleApp_HighLander
                         }*/
                     }
                 }
-                else if (!highlander.IsGood && opponentsInCell.Count > 0)
+                else if (!highlander.IsGood && highlander.IsAlive && opponentsInCell.Count > 0)
                 {
                     foreach (Highlander oppo in opponentsInCell)
                     {
