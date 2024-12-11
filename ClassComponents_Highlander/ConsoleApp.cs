@@ -58,7 +58,7 @@ namespace ConsoleApp_HighLander
 
         public void PlayGame(bool option1, bool option2)
         {
-            ClearDatabase();
+            //ClearDatabase();
 
             if (option1)
             {
@@ -80,7 +80,8 @@ namespace ConsoleApp_HighLander
                     }
                     //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
                 }
-
+                //ClearDatabase();
+                Console.WriteLine("Simulation complete.");
             }
 
             if (option2)
@@ -94,7 +95,7 @@ namespace ConsoleApp_HighLander
                     ExecuteRound();
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
-
+                //ClearDatabase() ;
                 Console.WriteLine("Simulation complete.");
             }
         }

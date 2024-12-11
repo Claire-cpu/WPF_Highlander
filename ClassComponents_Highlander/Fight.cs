@@ -58,7 +58,7 @@ namespace ConsoleApp_HighLander
                 }
                 else
                 {
-                    self.IsAlive = true;
+                    self.IsAlive = false;
                     opponent.PowerLevel += self.PowerLevel;
                     message = $"{opponent.Name} wins by random decision!";
                 }

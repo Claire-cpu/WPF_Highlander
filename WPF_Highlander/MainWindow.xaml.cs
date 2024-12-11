@@ -33,6 +33,7 @@ namespace WPF_Highlander
         public MainWindow()
         {
             InitializeComponent();
+            ClearDatabase();
         }
 
         private void InitializeGameService()
@@ -151,5 +152,25 @@ namespace WPF_Highlander
 
         }
 
+        private void ClearDatabase()
+        {
+
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM GameRounds; DELETE FROM Highlanders;", conn))
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing database: {ex.Message}");
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
     }
 }
