@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Security.Cryptography.X509Certificates;
 using System.Data;
+using System.Collections;
 
 namespace WPF_Highlander
 {
@@ -33,6 +34,8 @@ namespace WPF_Highlander
         public MainWindow()
         {
             InitializeComponent();
+            ClearDatabase();
+     
         }
 
         private void InitializeGameService()
@@ -150,6 +153,32 @@ namespace WPF_Highlander
             UpdateGameGrid();
 
         }
+
+        private void ClearDatabase()
+        {
+            try
+            {
+                conn.ConnectionString = conString;
+                cmd = conn.CreateCommand();
+
+                // Combine the delete queries
+                string query = "DELETE FROM GameRounds; DELETE FROM Highlanders;";
+                cmd.CommandText = query;
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing database: {ex.Message}");
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        
 
     }
 }
