@@ -14,8 +14,8 @@ namespace ConsoleApp_HighLander
         private int _currentRound = 1;
 
         private SqlConnection conn = new SqlConnection("Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345");
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345");
 
         public ConsoleApp(int gridRowDimension, int gridColumnDimension)
         {
@@ -58,6 +58,8 @@ namespace ConsoleApp_HighLander
 
         public void PlayGame(bool option1, bool option2)
         {
+            ClearDatabase();
+
             if (option1)
             {
                 if (!_highlanderList.Any(h => !h.IsGood)) //if all highlanders initially input by user are good highlanders, no winner for the game
@@ -99,61 +101,88 @@ namespace ConsoleApp_HighLander
 
         private void ExecuteRound()
         {
-            var liveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList(); // Snapshot of live Highlanders
+            Console.WriteLine($"Round {_currentRound} begins.");
 
+            // Create a snapshot of currently alive Highlanders at the start of the round
+            var liveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList();
+
+            // Process each live Highlander for this round
             foreach (Highlander highlander in liveHighlanders)
             {
-                // Checking for collisions
+                // Skip if this Highlander somehow died before processing (safety check)
+                if (!highlander.IsAlive) continue;
+
+                // Find opponents in the same cell
                 var opponentsInCell = _highlanderList
                     .Where(h => h.IsAlive && h != highlander && h.Row == highlander.Row && h.Column == highlander.Column)
                     .ToList();
-                var badHighlanders = opponentsInCell.Where(h => !h.IsGood).ToList();
 
-                if (highlander.IsGood && badHighlanders.Count > 0)
+                // If there are opponents, handle fights
+                if (opponentsInCell.Count > 0)
                 {
-                    foreach (Highlander oppo in badHighlanders)
+                    foreach (var opponent in opponentsInCell)
                     {
-                        oppo.Behavior = new Fight();
-                        oppo.ExecuteBehavior(this, highlander);
-                        _currentRound++;
-                        LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
-                    }
-                    if (highlander.IsAlive)
-                    {
-                        highlander.Behavior = new Escape();
-                        /*foreach (Highlander oppo in badHighlanders)
+                        if (!highlander.IsAlive || !opponent.IsAlive) continue;
+
+                        // Engage in fight
+                        highlander.Behavior = new Fight();
+                        highlander.ExecuteBehavior(this, opponent);
+
+                        // Log the interaction
+                        LogInteraction(_currentRound, highlander, opponent);
+
+                        // Immediately remove any defeated Highlanders
+                        if (!opponent.IsAlive)
                         {
-                            highlander.ExecuteBehavior(this, oppo);
-                            LogInteraction(highlander, oppo);
-                        }*/
+                            Console.WriteLine($"{opponent.Name} has been defeated and removed.");
+                            _highlanderList.Remove(opponent);
+                        }
+
+                        if (!highlander.IsAlive)
+                        {
+                            Console.WriteLine($"{highlander.Name} has been defeated and removed.");
+                            _highlanderList.Remove(highlander);
+                            break; // No further actions for this highlander
+                        }
+
+                        // After a single fight, break to avoid multiple consecutive fights by the same Highlander in one round
+                        break;
                     }
                 }
-                else if (!highlander.IsGood && opponentsInCell.Count > 0)
+                else
                 {
-                    foreach (Highlander oppo in opponentsInCell)
-                    {
-                        highlander.Behavior = new Fight();
-                        highlander.ExecuteBehavior(this, oppo);
-                        _currentRound++;
-                        LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
-                    }
+                    // No opponents, move randomly
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new RandomMove();
                         highlander.ExecuteBehavior(this, highlander);
                     }
                 }
-                else
+
+                // After handling fights and moves for this Highlander, check if we have a single winner
+                if (_highlanderList.Count(h => h.IsAlive) == 1)
                 {
-                    highlander.Behavior = new RandomMove();
-                    highlander.ExecuteBehavior(this, highlander);
-                    _currentRound++;
+                    var winner = _highlanderList.First(h => h.IsAlive);
+                    Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
+                    // Since a winner is found, break out of the round processing entirely
+                    break;
                 }
             }
+
+            // Final cleanup: remove all dead Highlanders (redundant but safe)
             _highlanderList.RemoveAll(h => !h.IsAlive);
+
+            Console.WriteLine($"Round {_currentRound} ends. {_highlanderList.Count(h => h.IsAlive)} Highlanders remain.");
+
+            // Increment round counter only after a full round completes
+            _currentRound++;
         }
+
+
+
+
+
+
 
         private void LogInteraction(int roundInfo, Highlander highlander1, Highlander highlander2)
         {
@@ -186,6 +215,24 @@ namespace ConsoleApp_HighLander
             }
         }
 
-
+        private void ClearDatabase()
+        {
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM GameRounds; DELETE FROM Highlanders;", conn))
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing database: {ex.Message}");
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
     }
 }
