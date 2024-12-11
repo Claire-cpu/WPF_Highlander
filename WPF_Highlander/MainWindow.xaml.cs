@@ -97,8 +97,22 @@ namespace WPF_Highlander
         {
             bool option1 = (bool)option1RadioButton.IsChecked;
             bool option2 = (bool)option2RadioButton.IsChecked;
+            string inputText = numRoundsTextBox.Text;
+            int playRounds;
 
-            gameService.StartGame(option1, option2);
+            if (int.TryParse(inputText, out playRounds))
+            {
+                // Conversion succeeded
+                Console.WriteLine($"Converted value: {playRounds}");
+            }
+            else
+            {
+                // Conversion failed
+                MessageBox.Show("Please enter a valid number of rounds.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+
+            gameService.StartGame(option1, option2, playRounds);
         }
 
         private void UpdateGameGrid()
@@ -141,6 +155,129 @@ namespace WPF_Highlander
             MessageBox.Show("Highlander added!");
         }
 
+        //display game result
+        private void DisplayResult()
+        {
+            try
+            {
+                conn.ConnectionString = conString;
+
+                // Query to get the latest winner's name
+                string winnerQuery = "SELECT TOP 1 Name FROM GameRounds ORDER BY Round DESC;";
+                string winnerName = GetSingleValueFromDatabase(winnerQuery, "No winner found");
+
+                if (winnerName == "No winner found")
+                {
+                    gameResult.Text = "No game results found.";
+                    return;
+                }
+
+                // Get victims and rounds where the winner is the killer
+                string victimQuery = "SELECT OpponentName FROM GameRounds WHERE Name = @WinnerName AND IdIsAlive = 1;";
+                List<string> victims = GetMultipleValuesFromDatabase<string>(victimQuery, "@WinnerName", winnerName);
+
+                string roundQuery = "SELECT Round FROM GameRounds WHERE Name = @WinnerName AND IdIsAlive = 1;";
+                List<int> rounds = GetMultipleValuesFromDatabase<int>(roundQuery, "@WinnerName", winnerName);
+
+                // Get victims and rounds where the winner was the victim
+                string reverseVictimQuery = "SELECT Name FROM GameRounds WHERE OpponentName = @WinnerName AND IdIsAlive = 0;";
+                List<string> reverseVictims = GetMultipleValuesFromDatabase<string>(reverseVictimQuery, "@WinnerName", winnerName);
+
+                string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName AND IdIsAlive = 0;";
+                List<int> reverseRounds = GetMultipleValuesFromDatabase<int>(reverseRoundQuery, "@WinnerName", winnerName);
+
+                // Construct the result message
+                StringBuilder resultMessage = new StringBuilder($"Winner: {winnerName}\n");
+
+                if (victims.Count > 0)
+                {
+                    string victimList = string.Join(", ", victims);
+                    string roundList = string.Join(", ", rounds);
+                    resultMessage.AppendLine($"Killed Victims: {victimList} in Rounds: {roundList}");
+                }
+
+                if (reverseVictims.Count > 0)
+                {
+                    string reverseVictimList = string.Join(", ", reverseVictims);
+                    string reverseRoundList = string.Join(", ", reverseRounds);
+                    resultMessage.AppendLine($"Killed By: {reverseVictimList} in Rounds: {reverseRoundList}");
+                }
+
+                gameResult.Text = resultMessage.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error retrieving data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+
+        private string GetSingleValueFromDatabase(string query, string defaultValue)
+        {
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    object result = cmd.ExecuteScalar();
+                    return result != null ? result.ToString() : defaultValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error executing query: {ex.Message}");
+                return defaultValue;
+            }
+            finally
+            {
+                if (conn.State == System.Data.ConnectionState.Open)
+                {
+                    conn.Close();
+                }
+            }
+        }
+
+        private List<T> GetMultipleValuesFromDatabase<T>(string query, string parameterName, string parameterValue)
+        {
+            var results = new List<T>();
+
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue(parameterName, parameterValue);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (!reader.IsDBNull(0))
+                            {
+                                results.Add((T)reader.GetValue(0));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error executing query: {ex.Message}");
+            }
+            finally
+            {
+                if (conn.State == System.Data.ConnectionState.Open)
+                {
+                    conn.Close();
+                }
+            }
+
+            return results;
+        }
+
+
+
         //Start Game button
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -151,6 +288,7 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
+            DisplayResult();
 
         }
 

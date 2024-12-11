@@ -40,9 +40,9 @@ namespace ClassComponents_Highlander
             HighlanderApp.AddHighlander(highlander);
         }
 
-        public void StartGame(bool option1, bool option2)
+        public void StartGame(bool option1, bool option2, int playRounds)
         {
-            HighlanderApp.PlayGame(option1, option2);
+            HighlanderApp.PlayGame(option1, option2, playRounds);
         }
 
         public int[] GetRandomPosition()

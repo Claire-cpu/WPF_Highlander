@@ -56,7 +56,7 @@ namespace ConsoleApp_HighLander
             _highlanderList.RemoveAll(h => h.Id == highlander.Id);
         }
 
-        public void PlayGame(bool option1, bool option2)
+        public void PlayGame(bool option1, bool option2, int playRounds)
         {
             if (option1)
             {
@@ -83,10 +83,8 @@ namespace ConsoleApp_HighLander
 
             if (option2)
             {
-                Console.WriteLine("Input how many rounds of simulation you want to run:");
-                int rounds = Convert.ToInt32(Console.ReadLine());
 
-                for (int round = 1; round <= rounds; round++)
+                for (int round = 1; round <= playRounds; round++)
                 {
                     Console.WriteLine($"Round {round} begins.");
                     ExecuteRound();
@@ -122,11 +120,7 @@ namespace ConsoleApp_HighLander
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new Escape();
-                        /*foreach (Highlander oppo in badHighlanders)
-                        {
-                            highlander.ExecuteBehavior(this, oppo);
-                            LogInteraction(highlander, oppo);
-                        }*/
+                       
                     }
                 }
                 else if (!highlander.IsGood && highlander.IsAlive && opponentsInCell.Count > 0)
