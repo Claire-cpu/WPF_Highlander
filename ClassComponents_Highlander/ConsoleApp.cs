@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp_HighLander
 {
@@ -12,12 +11,17 @@ namespace ConsoleApp_HighLander
         private int _gridRowDimension;
         private int _gridColumnDimension;
         private int[,] _grid;
+        private int _currentRound = 1;
+
+        private SqlConnection conn = new SqlConnection("Server=(local);" +
+                "Database=Week10Fall2024;" +
+                "User=CaraFall2024;Password=12345");
 
         public ConsoleApp(int gridRowDimension, int gridColumnDimension)
         {
             _gridRowDimension = gridRowDimension;
             _gridColumnDimension = gridColumnDimension;
-            _grid = new int[_gridRowDimension, _gridColumnDimension];//dimension of the play grid
+            _grid = new int[_gridRowDimension, _gridColumnDimension]; // Play grid dimensions
         }
 
         public List<Highlander> HighlanderList
@@ -52,28 +56,35 @@ namespace ConsoleApp_HighLander
             _highlanderList.RemoveAll(h => h.Id == highlander.Id);
         }
 
-
-        public void PlayGame(bool option1, bool option2)
+        public void PlayGame(bool option1, bool option2, int playRounds)
         {
-            Fight fight = new Fight();
-
-
             if (option1)
             {
-                while (_highlanderList.Count(h => h.IsAlive) > 1)
+                if (!_highlanderList.Any(h => !h.IsGood)) //if all highlanders initially input by user are good highlanders, no winner for the game
                 {
-                    ExecuteRound();
+                    Console.WriteLine("The game has no winner, as all highlanders are good highlanders.");
                 }
-                Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
-            }
+                else
+                {
+                    while (_highlanderList.Count(h => h.IsAlive) > 1)
+                    {
+                        ExecuteRound();
 
+                        //When more than 1 highlander is alive and none of them is bad, break the loop
+                        if (!_highlanderList.Any(h => h.IsAlive && !h.IsGood))
+                        {
+                            break;
+                        }
+                    }
+                    //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                }
+
+            }
 
             if (option2)
             {
-                Console.WriteLine("Input how many rounds of simulation you want to run:");
-                int rounds = Convert.ToInt32(Console.ReadLine());
 
-                for (int round = 1; round <= rounds; round++)
+                for (int round = 1; round <= playRounds; round++)
                 {
                     Console.WriteLine($"Round {round} begins.");
                     ExecuteRound();
@@ -84,10 +95,10 @@ namespace ConsoleApp_HighLander
             }
         }
 
-
         private void ExecuteRound()
         {
-            var liveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList(); // Snapshot of live highlanders
+            var liveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList(); // Snapshot of live Highlanders
+
             foreach (Highlander highlander in liveHighlanders)
             {
                 // Checking for collisions
@@ -95,62 +106,78 @@ namespace ConsoleApp_HighLander
                     .Where(h => h.IsAlive && h != highlander && h.Row == highlander.Row && h.Column == highlander.Column)
                     .ToList();
                 var badHighlanders = opponentsInCell.Where(h => !h.IsGood).ToList();
+
                 if (highlander.IsGood && badHighlanders.Count > 0)
                 {
-                    /*Each bad highlander in the opponents list will try to fight with 
-                     * good highlander in the first place*/
                     foreach (Highlander oppo in badHighlanders)
                     {
                         oppo.Behavior = new Fight();
                         oppo.ExecuteBehavior(this, highlander);
-                        if (highlander.IsAlive)
-                        {
-                            continue;
-                        }
+                        _currentRound++;
+                        LogInteraction(_currentRound, highlander, oppo);
+                        if (!highlander.IsAlive) break;
                     }
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new Escape();
-                        foreach (Highlander oppo in badHighlanders)
-                        {
-                            highlander.ExecuteBehavior(this, oppo);
-                        }
-
-
+                       
                     }
-
-
                 }
-                else if (!highlander.IsGood && opponentsInCell.Count > 0)
+                else if (!highlander.IsGood && highlander.IsAlive && opponentsInCell.Count > 0)
                 {
                     foreach (Highlander oppo in opponentsInCell)
                     {
                         highlander.Behavior = new Fight();
                         highlander.ExecuteBehavior(this, oppo);
-                        if (highlander.IsAlive)
-                        {
-                            continue;
-                        }
+                        _currentRound++;
+                        LogInteraction(_currentRound, highlander, oppo);
+                        if (!highlander.IsAlive) break;
                     }
                     if (highlander.IsAlive)
                     {
                         highlander.Behavior = new RandomMove();
                         highlander.ExecuteBehavior(this, highlander);
                     }
-
-
                 }
                 else
                 {
-                    //when the highlander is good and all highlanders in the opponent list in cell is good
                     highlander.Behavior = new RandomMove();
                     highlander.ExecuteBehavior(this, highlander);
+                    _currentRound++;
                 }
             }
-            // Remove dead Highlanders after the round
             _highlanderList.RemoveAll(h => !h.IsAlive);
+        }
 
+        private void LogInteraction(int roundInfo, Highlander highlander1, Highlander highlander2)
+        {
+            string query = @"
+                INSERT INTO GameRounds 
+                (Round, Name, OpponentName, IdIsAlive, PowerAbsorb) 
+                VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorbed)";
 
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Round", roundInfo);
+                cmd.Parameters.AddWithValue("@Highlander1Name", highlander1.Name);
+                cmd.Parameters.AddWithValue("@Highlander2Name", highlander2.Name);
+                cmd.Parameters.AddWithValue("@Highlander1IsAlive", highlander1.IsAlive);
+                cmd.Parameters.AddWithValue("@PowerAbsorbed", highlander1.IsAlive ? highlander2.PowerLevel : highlander1.PowerLevel);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error logging interaction: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
         }
 
 
