@@ -31,6 +31,7 @@ namespace WPF_Highlander
         private string conString = "Server=(local);" +
                 "Database=Week10Fall2024;" +
                 "User=CaraFall2024;Password=12345";
+        private bool option1, option2;
         public MainWindow()
         {
             InitializeComponent();
@@ -95,8 +96,8 @@ namespace WPF_Highlander
 
         private void StartGame()
         {
-            bool option1 = (bool)option1RadioButton.IsChecked;
-            bool option2 = (bool)option2RadioButton.IsChecked;
+            option1 = (bool)option1RadioButton.IsChecked;
+            option2 = (bool)option2RadioButton.IsChecked;
             string inputText = numRoundsTextBox.Text;
             int playRounds;
 
@@ -156,7 +157,7 @@ namespace WPF_Highlander
         }
 
         //display game result
-        private void DisplayResult()
+        private void DisplayResultOption1()
         {
             try
             {
@@ -241,7 +242,10 @@ namespace WPF_Highlander
             }
         }
 
+        private void DisplayResultOption2()
+        {
 
+        }
 
         private string GetSingleValueFromDatabase(string query, string defaultValue)
         {
@@ -318,7 +322,10 @@ namespace WPF_Highlander
 
             StartGame();
             UpdateGameGrid();
-            DisplayResult();
+            if (option1)
+            {
+                DisplayResultOption1();
+            }
 
         }
 
