@@ -115,7 +115,15 @@ namespace ConsoleApp_HighLander
                         oppo.ExecuteBehavior(this, highlander);
                         _currentRound++;
                         LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
+                        if (!highlander.IsAlive) 
+                        {
+                            UpdateLifeStatus(highlander, false);
+                            break;
+                        }
+                        else
+                        {
+                            UpdateLifeStatus(oppo, false);
+                        }
                     }
                     if (highlander.IsAlive)
                     {
@@ -131,7 +139,15 @@ namespace ConsoleApp_HighLander
                         highlander.ExecuteBehavior(this, oppo);
                         _currentRound++;
                         LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
+                        if (!highlander.IsAlive)
+                        {
+                            UpdateLifeStatus(highlander, false);
+                            break;
+                        }
+                        else
+                        {
+                            UpdateLifeStatus(oppo, false);
+                        }
                     }
                     if (highlander.IsAlive)
                     {
@@ -180,6 +196,33 @@ namespace ConsoleApp_HighLander
             }
         }
 
+        private void UpdateLifeStatus(Highlander highlander, bool isAlive)
+        {
+            string query = @"
+               UPDATE Highlanders
+               SET IsAlive = @IsAlive
+               WHERE Name = @HighlanderName";
 
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@HighlanderName", highlander.Name);
+                cmd.Parameters.AddWithValue("@IsAlive", Convert.ToInt32(isAlive));
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error logging interaction: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+
+        }
     }
 }
