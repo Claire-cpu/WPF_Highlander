@@ -153,7 +153,7 @@ namespace ConsoleApp_HighLander
         {
             string query = @"
                 INSERT INTO GameRounds 
-                (Round, Name, OpponentName, IdIsAlive, PowerAbsorb) 
+                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorb) 
                 VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorbed)";
 
             using (SqlCommand cmd = new SqlCommand(query, conn))

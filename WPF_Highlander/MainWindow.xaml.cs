@@ -100,12 +100,12 @@ namespace WPF_Highlander
             string inputText = numRoundsTextBox.Text;
             int playRounds;
 
-            if (int.TryParse(inputText, out playRounds))
+            if (int.TryParse(inputText, out playRounds) && !option1)
             {
                 // Conversion succeeded
                 Console.WriteLine($"Converted value: {playRounds}");
             }
-            else
+            else if(option2)
             {
                 // Conversion failed
                 MessageBox.Show("Please enter a valid number of rounds.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -163,8 +163,22 @@ namespace WPF_Highlander
                 conn.ConnectionString = conString;
 
                 // Query to get the latest winner's name
-                string winnerQuery = "SELECT TOP 1 Name FROM GameRounds ORDER BY Round DESC;";
-                string winnerName = GetSingleValueFromDatabase(winnerQuery, "No winner found");
+                string winnerQuery1 = "SELECT TOP 1 FighterName FROM GameRounds WHERE FighterIsAlive = 1 ORDER BY Round DESC;";
+                string winnerQuery1res = GetSingleValueFromDatabase(winnerQuery1, "No winner found");
+                string winnerQuery2 = "SELECT TOP 1 OpponentName FROM GameRounds WHERE FighterIsAlive = 0 ORDER BY Round DESC;";
+                string winnerQuery2res = GetSingleValueFromDatabase(winnerQuery2, "No winner found");
+                string winnerName;
+                if (winnerQuery1res != "No winner found") {
+                    winnerName = winnerQuery1res;
+                }
+                else if(winnerQuery2res != "No winner found")
+                {
+                    winnerName = winnerQuery2res;
+                }
+                else
+                {
+                    winnerName = "No winner found";
+                }
 
                 if (winnerName == "No winner found")
                 {
@@ -172,35 +186,51 @@ namespace WPF_Highlander
                     return;
                 }
 
-                // Get victims and rounds where the winner is the killer
-                string victimQuery = "SELECT OpponentName FROM GameRounds WHERE Name = @WinnerName AND IdIsAlive = 1;";
+                // Get victims, rounds, and power absorbed where the winner is the killer
+                string victimQuery = "SELECT OpponentName FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
                 List<string> victims = GetMultipleValuesFromDatabase<string>(victimQuery, "@WinnerName", winnerName);
 
-                string roundQuery = "SELECT Round FROM GameRounds WHERE Name = @WinnerName AND IdIsAlive = 1;";
+                string roundQuery = "SELECT Round FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
                 List<int> rounds = GetMultipleValuesFromDatabase<int>(roundQuery, "@WinnerName", winnerName);
 
-                // Get victims and rounds where the winner was the victim
-                string reverseVictimQuery = "SELECT Name FROM GameRounds WHERE OpponentName = @WinnerName AND IdIsAlive = 0;";
+                string powerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
+                List<int> power = GetMultipleValuesFromDatabase<int>(powerQuery, "@WinnerName", winnerName);
+
+                // Get victims, rounds, and power absorbed where the winner was the opponent
+                string reverseVictimQuery = "SELECT FighterName FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
                 List<string> reverseVictims = GetMultipleValuesFromDatabase<string>(reverseVictimQuery, "@WinnerName", winnerName);
 
-                string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName AND IdIsAlive = 0;";
+                string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
                 List<int> reverseRounds = GetMultipleValuesFromDatabase<int>(reverseRoundQuery, "@WinnerName", winnerName);
+
+                string reversePowerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
+                List<int> reversePower = GetMultipleValuesFromDatabase<int>(reversePowerQuery, "@WinnerName", winnerName);
 
                 // Construct the result message
                 StringBuilder resultMessage = new StringBuilder($"Winner: {winnerName}\n");
 
                 if (victims.Count > 0)
                 {
-                    string victimList = string.Join(", ", victims);
-                    string roundList = string.Join(", ", rounds);
-                    resultMessage.AppendLine($"Killed Victims: {victimList} in Rounds: {roundList}");
+                    string[] victimList = victims.ToArray();
+                    int[] roundList = rounds.ToArray();
+                    int[] powerList = power.ToArray();
+                    for(int i = 0; i < victimList.Length; i++)
+                    {
+                        resultMessage.AppendLine($"Victims: {victimList[i]} \t Killed in Round: {roundList[i]} \t Power Absorbed: {powerList[i]} \n");
+                    }
+                    
                 }
 
                 if (reverseVictims.Count > 0)
                 {
-                    string reverseVictimList = string.Join(", ", reverseVictims);
-                    string reverseRoundList = string.Join(", ", reverseRounds);
-                    resultMessage.AppendLine($"Killed By: {reverseVictimList} in Rounds: {reverseRoundList}");
+                    string[] reverseVictimList = reverseVictims.ToArray();
+                    int[] reverseRoundList = reverseRounds.ToArray();
+                    int[] reversePowerList = reversePower.ToArray();
+                    for (int i = 0; i < reverseVictimList.Length; i++)
+                    {
+                        resultMessage.AppendLine($"Victims: {reverseVictimList[i]} \t Killed in Round: {reverseRoundList[i]} \t Power Absorbed: {reversePowerList[i]} \n");
+                    }
+                    
                 }
 
                 gameResult.Text = resultMessage.ToString();
