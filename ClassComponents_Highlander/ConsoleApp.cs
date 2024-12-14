@@ -77,6 +77,13 @@ namespace ConsoleApp_HighLander
                         }
                     }
                     //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                    var winner = _highlanderList.FirstOrDefault(h => h.IsAlive);
+                    if (winner != null)
+                    {
+                        Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
+                        UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
+                    }
+
                 }
 
             }
@@ -115,7 +122,15 @@ namespace ConsoleApp_HighLander
                         oppo.ExecuteBehavior(this, highlander);
                         _currentRound++;
                         LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
+                        if (!highlander.IsAlive) 
+                        {
+                            UpdateLifeStatus(highlander, false);
+                            break;
+                        }
+                        else
+                        {
+                            UpdateLifeStatus(oppo, false);
+                        }
                     }
                     if (highlander.IsAlive)
                     {
@@ -131,7 +146,15 @@ namespace ConsoleApp_HighLander
                         highlander.ExecuteBehavior(this, oppo);
                         _currentRound++;
                         LogInteraction(_currentRound, highlander, oppo);
-                        if (!highlander.IsAlive) break;
+                        if (!highlander.IsAlive)
+                        {
+                            UpdateLifeStatus(highlander, false);
+                            break;
+                        }
+                        else
+                        {
+                            UpdateLifeStatus(oppo, false);
+                        }
                     }
                     if (highlander.IsAlive)
                     {
@@ -153,8 +176,8 @@ namespace ConsoleApp_HighLander
         {
             string query = @"
                 INSERT INTO GameRounds 
-                (Round, Name, OpponentName, IdIsAlive, PowerAbsorb) 
-                VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorbed)";
+                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorb) 
+                VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorb)";
 
             using (SqlCommand cmd = new SqlCommand(query, conn))
             {
@@ -162,7 +185,7 @@ namespace ConsoleApp_HighLander
                 cmd.Parameters.AddWithValue("@Highlander1Name", highlander1.Name);
                 cmd.Parameters.AddWithValue("@Highlander2Name", highlander2.Name);
                 cmd.Parameters.AddWithValue("@Highlander1IsAlive", highlander1.IsAlive);
-                cmd.Parameters.AddWithValue("@PowerAbsorbed", highlander1.IsAlive ? highlander2.PowerLevel : highlander1.PowerLevel);
+                cmd.Parameters.AddWithValue("@PowerAbsorb", highlander1.IsAlive ? highlander2.PowerLevel : highlander1.PowerLevel);
 
                 try
                 {
@@ -180,6 +203,88 @@ namespace ConsoleApp_HighLander
             }
         }
 
+        private void UpdateLifeStatus(Highlander highlander, bool isAlive)
+        {
+            string query = @"
+               UPDATE Highlanders
+               SET IsAlive = @IsAlive
+               WHERE Name = @HighlanderName";
 
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@HighlanderName", highlander.Name);
+                cmd.Parameters.AddWithValue("@IsAlive", Convert.ToInt32(isAlive));
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error logging interaction: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+
+        }
+
+        public void IncrementVictimCount(string winnerName)
+        {
+            string query = @"
+                UPDATE Highlanders
+                SET VictimNumber = COALESCE(VictimNumber, 0) +1
+                WHERE Name = @Name";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Name", winnerName);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error incrementing VictimNumber: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
+
+        private void UpdateWinnerAndTotalPower(string winnerName, int winnerPower)
+        {
+            string query = @"
+                UPDATE Highlanders
+                SET Winner = 1, TotalPowerLevel = @TotalPower
+                WHERE Name = @Name";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Name", winnerName);
+                cmd.Parameters.AddWithValue("@TotalPower", winnerPower);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating winner and total power: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
     }
 }

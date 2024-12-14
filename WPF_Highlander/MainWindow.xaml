@@ -23,9 +23,7 @@
         <Label Content="Select Type" HorizontalAlignment="Left" Margin="39,155,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <Label Content="Highlander Name " HorizontalAlignment="Left" Margin="39,209,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <Label Content="Highlander Age" HorizontalAlignment="Left" Margin="39,228,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
-        <Label Content="Highlander Number" HorizontalAlignment="Left" Margin="39,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.822,-0.322"/>
         <TextBox x:Name="numOfHighlandersTextBox" HorizontalAlignment="Left" Height="19" Margin="126,308,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="49"/>
-        <TextBox x:Name="highlanderNumberTextBox" HorizontalAlignment="Left" Height="17" Margin="188,190,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72"/>
         <RadioButton x:Name="goodRadioButton" Content="Good" HorizontalAlignment="Left" Height="16" Margin="130,162,0,0" VerticalAlignment="Top" Width="52" GroupName="highlanderInfoRadioButtons"/>
         <RadioButton x:Name="badRadioButton" Content="Bad" HorizontalAlignment="Left" Height="16" Margin="187,162,0,0" VerticalAlignment="Top" Width="52" GroupName="highlanderInfoRadioButtons"/>
         <RadioButton x:Name="defaultRadioButton" Content="Default" HorizontalAlignment="Left" Height="16" Margin="238,162,0,0" VerticalAlignment="Top" Width="71" GroupName="highlanderInfoRadioButtons"/>
@@ -36,7 +34,7 @@
         <Label Content="How game ends" HorizontalAlignment="Left" Height="34" Margin="29,365,0,0" VerticalAlignment="Top" Width="95"/>
         <RadioButton x:Name="option1RadioButton" Content="1 winner left" HorizontalAlignment="Left" Height="16" Margin="156,372,0,0" VerticalAlignment="Top" Width="102" GroupName="gameOptions"/>
         <RadioButton x:Name="option2RadioButton" Content="num of rounds" HorizontalAlignment="Left" Height="16" Margin="156,394,0,0" VerticalAlignment="Top" Width="102" GroupName="gameOptions"/>
-        <TextBox x:Name="numRoundsTextBox" HorizontalAlignment="Left" Height="17" Margin="267,393,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" TextAlignment="Center"/>
+        <TextBox x:Name="numRoundsTextBox" HorizontalAlignment="Left" Height="17" Margin="267,393,0,0" TextWrapping="Wrap" Text="#" VerticalAlignment="Top" Width="51" TextAlignment="Center"/>
         <Button x:Name="addButton" Content="Add" HorizontalAlignment="Left" Height="19" Margin="188,281,0,0" VerticalAlignment="Top" Width="72" Click="addButton_Click"/>
         <Button x:Name="startGameButton" Content="Start Game" HorizontalAlignment="Left" Height="19" Margin="34,417,0,0" VerticalAlignment="Top" Width="72" Click="Button_Click"/>
 
