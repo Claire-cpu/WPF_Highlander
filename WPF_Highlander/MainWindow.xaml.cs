@@ -29,8 +29,8 @@ namespace WPF_Highlander
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
         private string conString = "Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345";
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345";
         private bool option1, option2;
         public MainWindow()
         {
@@ -194,7 +194,7 @@ namespace WPF_Highlander
                 string roundQuery = "SELECT Round FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
                 List<int> rounds = GetMultipleValuesFromDatabase<int>(roundQuery, "@WinnerName", winnerName);
 
-                string powerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
+                string powerQuery = "SELECT PowerAbsorbed FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
                 List<int> power = GetMultipleValuesFromDatabase<int>(powerQuery, "@WinnerName", winnerName);
 
                 // Get victims, rounds, and power absorbed where the winner was the opponent
@@ -204,7 +204,7 @@ namespace WPF_Highlander
                 string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
                 List<int> reverseRounds = GetMultipleValuesFromDatabase<int>(reverseRoundQuery, "@WinnerName", winnerName);
 
-                string reversePowerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
+                string reversePowerQuery = "SELECT PowerAbsorbed FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
                 List<int> reversePower = GetMultipleValuesFromDatabase<int>(reversePowerQuery, "@WinnerName", winnerName);
 
                 // Construct the result message
@@ -374,6 +374,10 @@ namespace WPF_Highlander
             if (option1)
             {
                 DisplayResultOption1();
+            } 
+            else
+            {
+                DisplayResultOption2();
             }
 
             if (option2)
