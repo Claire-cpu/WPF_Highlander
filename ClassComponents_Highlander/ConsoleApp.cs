@@ -14,8 +14,8 @@ namespace ConsoleApp_HighLander
         private int _currentRound = 1;
 
         private SqlConnection conn = new SqlConnection("Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345");
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345");
 
         public ConsoleApp(int gridRowDimension, int gridColumnDimension)
         {
@@ -77,6 +77,13 @@ namespace ConsoleApp_HighLander
                         }
                     }
                     //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                    var winner = _highlanderList.FirstOrDefault(h => h.IsAlive);
+                    if (winner != null)
+                    {
+                        Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
+                        UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
+                    }
+
                 }
 
             }
@@ -169,7 +176,7 @@ namespace ConsoleApp_HighLander
         {
             string query = @"
                 INSERT INTO GameRounds 
-                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorb) 
+                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorbed) 
                 VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorbed)";
 
             using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -223,6 +230,61 @@ namespace ConsoleApp_HighLander
                 }
             }
 
+        }
+
+        public void IncrementVictimCount(string winnerName)
+        {
+            string query = @"
+                UPDATE Highlanders
+                SET VictimNumber = COALESCE(VictimNumber, 0) +1
+                WHERE Name = @Name";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Name", winnerName);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error incrementing VictimNumber: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
+
+        private void UpdateWinnerAndTotalPower(string winnerName, int winnerPower)
+        {
+            string query = @"
+                UPDATE Highlanders
+                SET Winner = 1, TotalPowerLevel = @TotalPower
+                WHERE Name = @Name";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Name", winnerName);
+                cmd.Parameters.AddWithValue("@TotalPower", winnerPower);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating winner and total power: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
         }
     }
 }
