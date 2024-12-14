@@ -375,10 +375,6 @@ namespace WPF_Highlander
             {
                 DisplayResultOption1();
             } 
-            else
-            {
-                DisplayResultOption2();
-            }
 
             if (option2)
             {
