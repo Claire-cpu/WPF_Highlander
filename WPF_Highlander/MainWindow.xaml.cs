@@ -208,7 +208,7 @@ namespace WPF_Highlander
                 List<int> reversePower = GetMultipleValuesFromDatabase<int>(reversePowerQuery, "@WinnerName", winnerName);
 
                 // Construct the result message
-                StringBuilder resultMessage = new StringBuilder($"Winner: {winnerName}\n");
+                StringBuilder resultMessage = new StringBuilder($"Option 1 Result \n Winner: {winnerName}\n");
 
                 if (victims.Count > 0)
                 {
@@ -244,7 +244,56 @@ namespace WPF_Highlander
 
         private void DisplayResultOption2()
         {
+            try
+            {
+                conn.ConnectionString = conString; 
+                string query = "SELECT * FROM GameRounds";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                Console.WriteLine("Database connection successful.");
+                SqlDataReader reader = cmd.ExecuteReader();
 
+                // Create a StringBuilder for the result message
+                StringBuilder resultMessage = new StringBuilder($"Option 2 Result:\n");
+
+                // Check if there are rows in the result set
+                if (reader.HasRows)
+                {
+                    // Read each row and process the data
+                    while (reader.Read())
+                    {
+                        // Example: Retrieve columns by index or column name
+                        string fighterName = reader["FighterName"].ToString();
+                        string opponentName = reader["OpponentName"].ToString();
+                        bool isAlive = (bool)reader["FighterIsAlive"];
+                        int round = (int)reader["Round"];
+
+                        // Append the data to the result message
+                        resultMessage.AppendLine($"Round {round}: {fighterName} vs {opponentName} - {(isAlive ? "Alive" : "Defeated")}");
+                    }
+                }
+                else
+                {
+                    // No rows found
+                    resultMessage.AppendLine("No fight ever initiated. All highlanders are alive");
+                }
+
+                // Close the reader
+                reader.Close();
+
+                // Display the result in the WPF control
+                gameResult.Text = resultMessage.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error retrieving data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                cmd.Dispose();
+                conn.Close();
+            }
         }
 
         private string GetSingleValueFromDatabase(string query, string defaultValue)
@@ -327,6 +376,10 @@ namespace WPF_Highlander
                 DisplayResultOption1();
             }
 
+            if (option2)
+            {
+                DisplayResultOption2();
+            }
         }
 
         private void ClearDatabase()
