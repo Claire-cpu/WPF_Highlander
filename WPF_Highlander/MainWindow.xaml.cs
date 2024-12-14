@@ -29,8 +29,10 @@ namespace WPF_Highlander
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
         private string conString = "Server=(local);" +
-                "Database=Highlander2024;" +
-                "User=Cort2024;Password=12345";
+                "Database=Week10Fall2024;" +
+                "User=CaraFall2024;Password=12345";
+
+
         private bool option1, option2;
         public MainWindow()
         {
@@ -164,17 +166,13 @@ namespace WPF_Highlander
                 conn.ConnectionString = conString;
 
                 // Query to get the latest winner's name
-                string winnerQuery1 = "SELECT TOP 1 FighterName FROM GameRounds WHERE FighterIsAlive = 1 ORDER BY Round DESC;";
-                string winnerQuery1res = GetSingleValueFromDatabase(winnerQuery1, "No winner found");
-                string winnerQuery2 = "SELECT TOP 1 OpponentName FROM GameRounds WHERE FighterIsAlive = 0 ORDER BY Round DESC;";
-                string winnerQuery2res = GetSingleValueFromDatabase(winnerQuery2, "No winner found");
+                string winnerQuery = "SELECT Name FROM Highlanders WHERE IsAlive = 1;";
+                string winnerQueryres = GetSingleValueFromDatabase(winnerQuery, "No winner found");
+                /*string winnerQuery2 = "SELECT TOP 1 OpponentName FROM GameRounds WHERE FighterIsAlive = 0 ORDER BY Round DESC;";
+                string winnerQuery2res = GetSingleValueFromDatabase(winnerQuery2, "No winner found");*/
                 string winnerName;
-                if (winnerQuery1res != "No winner found") {
-                    winnerName = winnerQuery1res;
-                }
-                else if(winnerQuery2res != "No winner found")
-                {
-                    winnerName = winnerQuery2res;
+                if (winnerQueryres != "No winner found") {
+                    winnerName = winnerQueryres;
                 }
                 else
                 {
@@ -187,28 +185,28 @@ namespace WPF_Highlander
                     return;
                 }
 
-                // Get victims, rounds, and power absorbed where the winner is the killer
-                string victimQuery = "SELECT OpponentName FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
+                // Get victims, rounds, and power absorbed where the winner is the fighter
+                string victimQuery = "SELECT OpponentName FROM GameRounds WHERE FighterName = @WinnerName;";
                 List<string> victims = GetMultipleValuesFromDatabase<string>(victimQuery, "@WinnerName", winnerName);
 
-                string roundQuery = "SELECT Round FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
+                string roundQuery = "SELECT Round FROM GameRounds WHERE FighterName = @WinnerName;";
                 List<int> rounds = GetMultipleValuesFromDatabase<int>(roundQuery, "@WinnerName", winnerName);
 
-                string powerQuery = "SELECT PowerAbsorbed FROM GameRounds WHERE FighterName = @WinnerName AND FighterIsAlive = 1;";
+                string powerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE FighterName = @WinnerName;";
                 List<int> power = GetMultipleValuesFromDatabase<int>(powerQuery, "@WinnerName", winnerName);
 
                 // Get victims, rounds, and power absorbed where the winner was the opponent
-                string reverseVictimQuery = "SELECT FighterName FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
+                string reverseVictimQuery = "SELECT FighterName FROM GameRounds WHERE OpponentName = @WinnerName;";
                 List<string> reverseVictims = GetMultipleValuesFromDatabase<string>(reverseVictimQuery, "@WinnerName", winnerName);
 
-                string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
+                string reverseRoundQuery = "SELECT Round FROM GameRounds WHERE OpponentName = @WinnerName;";
                 List<int> reverseRounds = GetMultipleValuesFromDatabase<int>(reverseRoundQuery, "@WinnerName", winnerName);
 
-                string reversePowerQuery = "SELECT PowerAbsorbed FROM GameRounds WHERE OpponentName = @WinnerName AND FighterIsAlive = 0;";
+                string reversePowerQuery = "SELECT PowerAbsorb FROM GameRounds WHERE OpponentName = @WinnerName;";
                 List<int> reversePower = GetMultipleValuesFromDatabase<int>(reversePowerQuery, "@WinnerName", winnerName);
 
                 // Construct the result message
-                StringBuilder resultMessage = new StringBuilder($"Winner: {winnerName}\n");
+                StringBuilder resultMessage = new StringBuilder($"Option 1 Result \n Winner: {winnerName}\n");
 
                 if (victims.Count > 0)
                 {
@@ -244,7 +242,56 @@ namespace WPF_Highlander
 
         private void DisplayResultOption2()
         {
+            try
+            {
+                conn.ConnectionString = conString; 
+                string query = "SELECT * FROM GameRounds";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                Console.WriteLine("Database connection successful.");
+                SqlDataReader reader = cmd.ExecuteReader();
 
+                // Create a StringBuilder for the result message
+                StringBuilder resultMessage = new StringBuilder($"Option 2 Result:\n");
+
+                // Check if there are rows in the result set
+                if (reader.HasRows)
+                {
+                    // Read each row and process the data
+                    while (reader.Read())
+                    {
+                        // Example: Retrieve columns by index or column name
+                        string fighterName = reader["FighterName"].ToString();
+                        string opponentName = reader["OpponentName"].ToString();
+                        bool isAlive = (bool)reader["FighterIsAlive"];
+                        int round = (int)reader["Round"];
+
+                        // Append the data to the result message
+                        resultMessage.AppendLine($"Round {round}: {fighterName} vs {opponentName} - {(isAlive ? "Alive" : $" {fighterName} Defeated")}");
+                    }
+                }
+                else
+                {
+                    // No rows found
+                    resultMessage.AppendLine("No fight ever initiated. All highlanders are alive");
+                }
+
+                // Close the reader
+                reader.Close();
+
+                // Display the result in the WPF control
+                gameResult.Text = resultMessage.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error retrieving data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                cmd.Dispose();
+                conn.Close();
+            }
         }
 
         private string GetSingleValueFromDatabase(string query, string defaultValue)
@@ -326,11 +373,11 @@ namespace WPF_Highlander
             {
                 DisplayResultOption1();
             } 
-            else
+
+            if (option2)
             {
                 DisplayResultOption2();
             }
-
         }
 
         private void ClearDatabase()

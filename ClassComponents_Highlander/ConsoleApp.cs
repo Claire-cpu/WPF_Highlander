@@ -14,8 +14,8 @@ namespace ConsoleApp_HighLander
         private int _currentRound = 1;
 
         private SqlConnection conn = new SqlConnection("Server=(local);" +
-                "Database=Highlander2024;" +
-                "User=Cort2024;Password=12345");
+                "Database=Week10Fall2024;" +
+                "User=CaraFall2024;Password=12345");
 
         public ConsoleApp(int gridRowDimension, int gridColumnDimension)
         {
@@ -176,8 +176,8 @@ namespace ConsoleApp_HighLander
         {
             string query = @"
                 INSERT INTO GameRounds 
-                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorbed) 
-                VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorbed)";
+                (Round, FighterName, OpponentName, FighterIsAlive, PowerAbsorb) 
+                VALUES (@Round, @Highlander1Name, @Highlander2Name, @Highlander1IsAlive, @PowerAbsorb)";
 
             using (SqlCommand cmd = new SqlCommand(query, conn))
             {
@@ -185,7 +185,7 @@ namespace ConsoleApp_HighLander
                 cmd.Parameters.AddWithValue("@Highlander1Name", highlander1.Name);
                 cmd.Parameters.AddWithValue("@Highlander2Name", highlander2.Name);
                 cmd.Parameters.AddWithValue("@Highlander1IsAlive", highlander1.IsAlive);
-                cmd.Parameters.AddWithValue("@PowerAbsorbed", highlander1.IsAlive ? highlander2.PowerLevel : highlander1.PowerLevel);
+                cmd.Parameters.AddWithValue("@PowerAbsorb", highlander1.IsAlive ? highlander2.PowerLevel : highlander1.PowerLevel);
 
                 try
                 {
