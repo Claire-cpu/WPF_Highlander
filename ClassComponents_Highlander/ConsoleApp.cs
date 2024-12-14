@@ -83,9 +83,7 @@ namespace ConsoleApp_HighLander
                         Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
                         UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
                     }
-
                 }
-
             }
 
             if (option2)
@@ -97,7 +95,7 @@ namespace ConsoleApp_HighLander
                     ExecuteRound();
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
-
+                UpdateGoodAndBadCount();
                 Console.WriteLine("Simulation complete.");
             }
         }
@@ -229,7 +227,6 @@ namespace ConsoleApp_HighLander
                     conn.Close();
                 }
             }
-
         }
 
         public void IncrementVictimCount(string winnerName)
@@ -285,6 +282,39 @@ namespace ConsoleApp_HighLander
                     conn.Close();
                 }
             }
+        }
+
+        private void UpdateGoodAndBadCount()
+        {
+            int goodCount = _highlanderList.Count(h => h.IsAlive && h.IsGood);
+            int badCount = _highlanderList.Count(h => h.IsAlive && !h.IsGood);
+
+            string query = @"
+                UPDATE Highlanders
+                SET GoodHighlanders = @GoodCount,
+                    BadHighlanders = @BadCount;";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@GoodCount", goodCount);
+                cmd.Parameters.AddWithValue("@BadCount", badCount);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating good and bad counts: {ex.Message}");
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+
+            Console.WriteLine($"Updated database with {goodCount} good and {badCount} bad Highlanders remaining.");
         }
     }
 }
