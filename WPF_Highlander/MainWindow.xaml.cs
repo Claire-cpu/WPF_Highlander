@@ -17,6 +17,7 @@ using System.Data.SqlClient;
 using System.Security.Cryptography.X509Certificates;
 using System.Data;
 using System.Collections;
+using ConsoleApp_HighLander;
 
 namespace WPF_Highlander
 {
@@ -32,7 +33,7 @@ namespace WPF_Highlander
                 "Database=Week10Fall2024;" +
                 "User=CaraFall2024;Password=12345";
 
-
+         
         private bool option1, option2;
         public MainWindow()
         {
@@ -43,9 +44,33 @@ namespace WPF_Highlander
 
         private void InitializeGameService()
         {
-            int rows = int.Parse(rowsTextBox.Text);
-            int columns = int.Parse(columnsTextBox.Text);
+            int rows, columns;
+
+            // Try parsing the rows input
+            if (!int.TryParse(rowsTextBox.Text, out rows))
+            {
+                MessageBox.Show("Please enter a valid numerical value for rows.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Try parsing the columns input
+            if (!int.TryParse(columnsTextBox.Text, out columns))
+            {
+                MessageBox.Show("Please enter a valid numerical value for columns.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Check for minimum dimensions
+            if (rows < 2 || columns < 2)
+            {
+                MessageBox.Show("Please enter at least 2 rows and 2 columns.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // If all inputs are valid, initialize the game service
             gameService = new HighlanderGameService(rows, columns);
+
+
         }
 
         private void AddHighlander()
@@ -54,68 +79,149 @@ namespace WPF_Highlander
             int age;
             int powerLevel;
             bool isGood = (bool)goodRadioButton.IsChecked;
+            bool isDefault = (bool)defaultRadioButton.IsChecked;
 
-            if (string.IsNullOrEmpty(name) ||
+            if (!isDefault)
+            {
+                if (string.IsNullOrEmpty(name) ||
                 !int.TryParse(highlanderAgeTextBox.Text, out age) ||
                 !int.TryParse(highlanderPowerLevelTextBox.Text, out powerLevel))
-            {
-                MessageBox.Show("Please provide valid inputs for age and power level.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                {
+                    MessageBox.Show("Please provide valid inputs for age and power level.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                gameService.AddHighlander(name, age, powerLevel, isGood);
+                conn.ConnectionString = conString;
+                cmd = conn.CreateCommand();
+
+                try
+                {
+                    string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
+
+                    //cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.NVarChar) { Value = gameService.HighlanderApp });
+                    cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name });
+                    cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = age });
+                    cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = powerLevel });
+                    cmd.Parameters.Add(new SqlParameter("@IsGood", SqlDbType.Bit) { Value = isGood });
+                    cmd.Parameters.Add(new SqlParameter("@IsAlive", SqlDbType.Bit) { Value = 1 });
+                    cmd.CommandText = query;
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error adding highlander: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    cmd.Dispose();
+                    conn.Close();
+                }
+                UpdateGameGrid();
             }
 
-            gameService.AddHighlander(name, age, powerLevel, isGood);
-
-            conn.ConnectionString = conString;
-            cmd = conn.CreateCommand();
-
-            try
+            if (isDefault) 
             {
-                string query = "INSERT INTO Highlanders (Name, Age, PowerLevel , IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
+                int numToGenerate = 3;
+                Random rand = new Random();
+                bool hasBadHighlander = false;
 
-                //cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.NVarChar) { Value = gameService.HighlanderApp });
-                cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name });
-                cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = age });
-                cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = powerLevel });
-                cmd.Parameters.Add(new SqlParameter("@IsGood", SqlDbType.Bit) { Value = isGood });
-                cmd.Parameters.Add(new SqlParameter("@IsAlive", SqlDbType.Bit) { Value = 1 });
-                cmd.CommandText = query;
+                for (int i = 0; i < numToGenerate - 1; i++)
+                {
+                    name = $"Highlander_{i}";
+                    age = rand.Next(20, 50);
+                    powerLevel = rand.Next(10, 100);
+                    isGood = rand.Next(0, 2) == 0; ;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                    // Ensure at least one bad Highlander is generated
+                    if (!isGood)
+                    {
+                        hasBadHighlander = true; // Force this Highlander to be bad
+                    }
+                    gameService.AddHighlander(name, age, powerLevel, isGood);
+                }
 
+                if (!hasBadHighlander)
+                {
+                    name = $"Highlander_{numToGenerate}";
+                    age = rand.Next(20, 50);
+                    powerLevel = rand.Next(10, 100);
+                    isGood = false;
+                    gameService.AddHighlander(name, age, powerLevel, isGood);
+                }
+
+                conn.ConnectionString = conString;
+                cmd = conn.CreateCommand();
+
+                try
+                {
+                    conn.Open(); // Open the connection once
+                    foreach (Highlander highlander in gameService.HighlanderApp.HighlanderList)
+                    {
+                        using (SqlCommand cmd = new SqlCommand())
+                        {
+                            cmd.Connection = conn;
+                            cmd.CommandText = "INSERT INTO Highlanders (Name, Age, PowerLevel, IsGood, IsAlive) VALUES (@Name, @Age, @PowerLevel, @IsGood, @IsAlive)";
+                            cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar) { Value = highlander.Name });
+                            cmd.Parameters.Add(new SqlParameter("@Age", SqlDbType.Int) { Value = highlander.Age });
+                            cmd.Parameters.Add(new SqlParameter("@PowerLevel", SqlDbType.Int) { Value = highlander.PowerLevel });
+                            cmd.Parameters.Add(new SqlParameter("@IsGood", SqlDbType.Bit) { Value = Convert.ToInt32(highlander.IsGood) });
+                            cmd.Parameters.Add(new SqlParameter("@IsAlive", SqlDbType.Bit) { Value = 1 });
+
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error adding highlander: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    conn.Close(); // Ensure the connection is closed
+                }
+                UpdateGameGrid();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error adding highlander: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                cmd.Dispose();
-                conn.Close();
-            }
-            UpdateGameGrid();
+
+          
         }
 
         private void StartGame()
         {
             option1 = (bool)option1RadioButton.IsChecked;
             option2 = (bool)option2RadioButton.IsChecked;
+           
             string inputText = numRoundsTextBox.Text;
-            int playRounds;
-
-            if (int.TryParse(inputText, out playRounds) && !option1)
+            int playRounds =0;
+            // Validate input for Option 2
+            if (option2)
             {
-                // Conversion succeeded
-                Console.WriteLine($"Converted value: {playRounds}");
-            }
-            else if(option2)
-            {
-                // Conversion failed
-                MessageBox.Show("Please enter a valid number of rounds.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (!int.TryParse(numRoundsTextBox.Text, out playRounds) || playRounds <= 0)
+                {
+                    MessageBox.Show("Please enter a valid positive number for rounds.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
 
+            // Ensure at least one game option is selected
+            if (!option1 && !option2)
+            {
+                MessageBox.Show("Please select Option 1 or Option 2 to start the game.", "No Option Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            gameService.StartGame(option1, option2, playRounds);
+            // Start the game based on the selected option
+            try
+            {
+                gameService.StartGame(option1, option2, playRounds);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting the game: {ex.Message}", "Game Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void UpdateGameGrid()
