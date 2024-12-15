@@ -76,11 +76,13 @@ namespace ConsoleApp_HighLander
                             break;
                         }
                     }
-                    //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                    
                     var winner = _highlanderList.FirstOrDefault(h => h.IsAlive);
                     if (winner != null)
                     {
-                        Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
+                        string message = $"The game has ended. Winner is {winner.Name}!";
+                        Console.WriteLine(message);
+                        Logger.Log(message);
                         UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
                     }
                 }
@@ -92,9 +94,29 @@ namespace ConsoleApp_HighLander
                 for (int round = 1; round <= playRounds; round++)
                 {
                     Console.WriteLine($"Round {round} begins.");
+                    Logger.Log($"Round {round} begins.");
                     ExecuteRound();
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
+
+                var aliveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList();
+                if (aliveHighlanders.Count == 1)
+                {
+                    //One winner for option2
+                    var winner = aliveHighlanders.First();
+                    string message = $"The game has ended. Winner is {winner.Name}!";
+                    Console.WriteLine(message);
+                    Logger.Log(message);
+                    UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
+                }
+                else
+                {
+                    //No single winner just show final good/bad count
+                    string message = "No single winner emerged at the end of option2.";
+                    Console.WriteLine(message);
+                    Logger.Log(message);
+                }
+
                 UpdateGoodAndBadCount();
                 Console.WriteLine("Simulation complete.");
             }
