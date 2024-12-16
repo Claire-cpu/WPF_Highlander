@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace ConsoleApp_HighLander
+namespace ClassComponents_Highlander
 {
     internal class Logger
     {

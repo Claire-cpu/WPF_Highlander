@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp_HighLander
+namespace ClassComponents_Highlander
 {
     public interface BehaviorStrategy
     {
