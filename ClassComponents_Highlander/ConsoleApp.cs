@@ -117,7 +117,9 @@ namespace ConsoleApp_HighLander
                     Console.WriteLine(message);
                     Logger.Log(message);
                 }*/
-
+                string message = $"The game has ended. Winner is {winner.Name}!";
+                Console.WriteLine(message);
+                Logger.Log(message);
                 UpdateGoodAndBadCount();
                 Console.WriteLine("Simulation complete.");
             }
