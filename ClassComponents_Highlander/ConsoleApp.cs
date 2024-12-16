@@ -94,6 +94,7 @@ namespace ConsoleApp_HighLander
 
                 for (int round = 1; round <= playRounds; round++)
                 {
+                    if (_currentRound == playRounds) break;
                     Console.WriteLine($"Round {round} begins.");
                     Logger.Log($"Round {round} begins.");
                     ExecuteRoundOption2(playRounds);
