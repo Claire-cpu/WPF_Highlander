@@ -30,8 +30,8 @@ namespace WPF_Highlander
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
         private string conString = "Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345";
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345";
 
          
         private bool option1, option2;
@@ -39,7 +39,6 @@ namespace WPF_Highlander
         {
             InitializeComponent();
             ClearDatabase();
-     
         }
 
         private void InitializeGameService()

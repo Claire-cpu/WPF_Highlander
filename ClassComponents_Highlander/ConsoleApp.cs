@@ -14,8 +14,8 @@ namespace ConsoleApp_HighLander
         private int _currentRound = 1;
 
         private SqlConnection conn = new SqlConnection("Server=(local);" +
-                "Database=Week10Fall2024;" +
-                "User=CaraFall2024;Password=12345");
+                "Database=Highlander2024;" +
+                "User=Cort2024;Password=12345");
 
         public ConsoleApp(int gridRowDimension, int gridColumnDimension)
         {
@@ -76,11 +76,13 @@ namespace ConsoleApp_HighLander
                             break;
                         }
                     }
-                    //Console.WriteLine("The game has ended. Winner is {0}!", _highlanderList[0].Name);
+                    
                     var winner = _highlanderList.FirstOrDefault(h => h.IsAlive);
                     if (winner != null)
                     {
-                        Console.WriteLine($"The game has ended. Winner is {winner.Name}!");
+                        string message = $"The game has ended. Winner is {winner.Name}!";
+                        Console.WriteLine(message);
+                        Logger.Log(message);
                         UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
                     }
                 }
@@ -92,9 +94,29 @@ namespace ConsoleApp_HighLander
                 for (int round = 1; round <= playRounds; round++)
                 {
                     Console.WriteLine($"Round {round} begins.");
+                    Logger.Log($"Round {round} begins.");
                     ExecuteRound();
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
+
+                var aliveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList();
+                if (aliveHighlanders.Count == 1)
+                {
+                    //One winner for option2
+                    var winner = aliveHighlanders.First();
+                    string message = $"The game has ended. Winner is {winner.Name}!";
+                    Console.WriteLine(message);
+                    Logger.Log(message);
+                    UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
+                }
+                else
+                {
+                    //No single winner just show final good/bad count
+                    string message = "No single winner emerged at the end of option2.";
+                    Console.WriteLine(message);
+                    Logger.Log(message);
+                }
+
                 UpdateGoodAndBadCount();
                 Console.WriteLine("Simulation complete.");
             }
@@ -286,19 +308,14 @@ namespace ConsoleApp_HighLander
 
         private void UpdateGoodAndBadCount()
         {
-            int goodCount = _highlanderList.Count(h => h.IsAlive && h.IsGood);
-            int badCount = _highlanderList.Count(h => h.IsAlive && !h.IsGood);
-
             string query = @"
                 UPDATE Highlanders
-                SET GoodHighlanders = @GoodCount,
-                    BadHighlanders = @BadCount;";
+                SET GoodHighlanders = (SELECT COUNT(*) FROM Highlanders WHERE IsAlive = 1 AND IsGood = 1),
+                BadHighlanders = (SELECT COUNT(*) FROM Highlanders WHERE IsAlive = 1 AND IsGood = 0);";
+
 
             using (SqlCommand cmd = new SqlCommand(query, conn))
             {
-                cmd.Parameters.AddWithValue("@GoodCount", goodCount);
-                cmd.Parameters.AddWithValue("@BadCount", badCount);
-
                 try
                 {
                     conn.Open();
@@ -314,7 +331,7 @@ namespace ConsoleApp_HighLander
                 }
             }
 
-            Console.WriteLine($"Updated database with {goodCount} good and {badCount} bad Highlanders remaining.");
+            Console.WriteLine($"Updated database with final count of good and bad Highlanders remaining.");
         }
     }
 }
