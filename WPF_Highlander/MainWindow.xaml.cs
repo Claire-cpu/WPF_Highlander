@@ -30,10 +30,10 @@ namespace WPF_Highlander
         private SqlConnection conn = new SqlConnection();
         private SqlCommand cmd;
         private string conString = "Server=(local);" +
-                "Database=Highlander2024;" +
-                "User=Cort2024;Password=12345";
+                "Database=Week10Fall2024;" +
+                "User=CaraFall2024;Password=12345";
 
-         
+
         private bool option1, option2;
         public MainWindow()
         {
@@ -271,7 +271,7 @@ namespace WPF_Highlander
                 conn.ConnectionString = conString;
 
                 // Query to get the latest winner's name
-                string winnerQuery = "SELECT Name FROM Highlanders WHERE IsAlive = 1;";
+                string winnerQuery = "SELECT Name FROM Highlanders WHERE Winner = 1;";
                 string winnerQueryres = GetSingleValueFromDatabase(winnerQuery, "No winner found");
                 /*string winnerQuery2 = "SELECT TOP 1 OpponentName FROM GameRounds WHERE FighterIsAlive = 0 ORDER BY Round DESC;";
                 string winnerQuery2res = GetSingleValueFromDatabase(winnerQuery2, "No winner found");*/
@@ -372,7 +372,7 @@ namespace WPF_Highlander
                         int round = (int)reader["Round"];
 
                         // Append the data to the result message
-                        resultMessage.AppendLine($"Round {round}: {fighterName} vs {opponentName} - {(isAlive ? "Alive" : $" {fighterName} Defeated")}");
+                        resultMessage.AppendLine($"Round {round}: {fighterName} vs {opponentName} - {(isAlive ? $"{fighterName} Alive" : $" {fighterName} Defeated")}");
                     }
                 }
                 else
