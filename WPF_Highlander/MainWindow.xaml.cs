@@ -282,13 +282,10 @@ namespace WPF_Highlander
                 else
                 {
                     winnerName = "No winner found";
-                }
-
-                if (winnerName == "No winner found")
-                {
                     gameResult.Text = "No game results found.";
                     return;
                 }
+
 
                 // Get victims, rounds, and power absorbed where the winner is the fighter
                 string victimQuery = "SELECT OpponentName FROM GameRounds WHERE FighterName = @WinnerName;";

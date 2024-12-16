@@ -76,8 +76,9 @@ namespace ConsoleApp_HighLander
                             break;
                         }
                     }
-                    
-                    var winner = _highlanderList.FirstOrDefault(h => h.IsAlive);
+
+                    var winner = _highlanderList.Where(h => h.IsAlive).OrderByDescending(h => h.PowerLevel).FirstOrDefault(); // Get the Highlander with the highest power
+
                     if (winner != null)
                     {
                         string message = $"The game has ended. Winner is {winner.Name}!";
@@ -99,8 +100,8 @@ namespace ConsoleApp_HighLander
                     Console.WriteLine($"Round {round} ends. Remaining Highlanders: {_highlanderList.Count(h => h.IsAlive)}");
                 }
 
-                /*var aliveHighlanders = _highlanderList.Where(h => h.IsAlive).ToList();
-                if (aliveHighlanders.Count == 1)
+                var winner = _highlanderList.Where(h => h.IsAlive).OrderByDescending(h => h.PowerLevel).FirstOrDefault(); // Get the Highlander with the highest power
+                /*if (aliveHighlanders.Count == 1)
                 {
                     //One winner for option2
                     var winner = aliveHighlanders.First();
