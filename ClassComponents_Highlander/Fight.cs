@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Schema;
 
-namespace ConsoleApp_HighLander
+namespace ClassComponents_Highlander
 {
     public class Fight : BehaviorStrategy
     {

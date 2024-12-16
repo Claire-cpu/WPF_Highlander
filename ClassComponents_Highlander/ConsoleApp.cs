@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace ConsoleApp_HighLander
+namespace ClassComponents_Highlander
 {
     public class ConsoleApp
     {
@@ -102,6 +102,7 @@ namespace ConsoleApp_HighLander
                 }
 
                 var winner = _highlanderList.Where(h => h.IsAlive).OrderByDescending(h => h.PowerLevel).FirstOrDefault(); // Get the Highlander with the highest power
+                UpdateWinnerAndTotalPower(winner.Name, winner.PowerLevel);
                 /*if (aliveHighlanders.Count == 1)
                 {
                     //One winner for option2

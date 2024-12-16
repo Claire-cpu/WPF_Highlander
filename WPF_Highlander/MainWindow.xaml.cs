@@ -17,7 +17,8 @@ using System.Data.SqlClient;
 using System.Security.Cryptography.X509Certificates;
 using System.Data;
 using System.Collections;
-using ConsoleApp_HighLander;
+//using ConsoleApp_HighLander;
+
 
 namespace WPF_Highlander
 {
